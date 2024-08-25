@@ -6,7 +6,7 @@ const log = debug("app:hooks.server");
 
 export const handle: Handle = async ({ event, resolve }) => {
     try{
-        const token = event.cookies.get("token");
+        const token = event.cookies.get("__session");
         const currentUser = token ? await auth.verifyIdToken(token) : null;
         if(currentUser)
             event.locals.user = currentUser?.uid;
@@ -14,7 +14,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
     catch(e) {
         log("error", e)
-        event.cookies.set("token", "", { path:'/', maxAge: -1 });
+        event.cookies.set("__session", "", { path:'/', maxAge: -1});
     }
 
     return await resolve(event);

@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Notes App</title>
 		<style>
 			* {
@@ -11,16 +11,18 @@
 				padding: 0;
 				box-sizing: border-box;
 			}
-
+			
 			:root {
 				&:has(input[id='theme-switch']:checked) {
 					color-scheme: dark;
 				}
 			}
-
+			
 			body {
-				height: 100vh;
+				height: 100dvh;
 				width: 100vw;
+				overflow: hidden;
+				-webkit-tap-highlight-color: transparent;
 			}
 		</style>
 		%sveltekit.head%

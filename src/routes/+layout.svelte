@@ -8,15 +8,14 @@
 		style='
 			position: absolute;
 			transform: translate({pos[0]}%, {pos[1]}%);
-			height: calc({dim}vh + 2em);
-			width: calc({dim}vh + 2em);
+			height: calc({dim}dvh + 2em);
+			width: calc({dim}dvh + 2em);
 			border-radius: 50%;
 		'
 	></div>
 {/snippet}
 
 <div class="circle">
-	<div class="second"></div>
 	{@render circle('circle-1', [70,30], 40)}
 	{@render circle('circle-2', [-80,-40], 20)}
 	{@render circle('circle-3', [600,-300], 5)}
@@ -31,7 +30,7 @@
 	.circle {
 		z-index: -1;
 		position: fixed;
-		height: 100vh;
+		height: 100dvh;
 		width: 100vw;
 		display: flex;
 		justify-content: center;
@@ -50,37 +49,37 @@
 	}
 
 	.circle-1 {
-		background: linear-gradient(94deg, rgba(181,120,120,1) 15%, rgba(255,165,0,1) 58%, rgba(182,47,47,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgba(181,120,120,1),rgba(181,120,120,.8)) 15%, light-dark(rgba(255,165,0,1), rgba(255,165,0,.8)) 58%, light-dark(rgba(182,47,47,1), rgba(182,47,47,.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(255, 166, 0, 0.315);
 	}
 
     .circle-2 {
-        background: linear-gradient(94deg, rgba(82,44,181,1) 15%, rgba(71,0,255,1) 58%, rgba(82,47,182,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgba(82,44,181,1), rgba(82,44,181,0.8)) 15%, light-dark(rgba(71,0,255,1), rgba(71,0,255,0.8)) 58%, light-dark(rgba(82,47,182,1), rgba(82,47,182,0.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(71,0,255,0.350);
     }
 
 	.circle-3 {
-		background: linear-gradient(94deg, rgba(44,59,181,1) 15%, rgba(0,84,255,1) 50%, rgba(77,83,255,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgba(44,59,181,1), rgba(44,59,181,0.8)) 15%, light-dark(rgba(0,84,255,1), rgba(0,84,255,0.8)) 50%, light-dark(rgba(77,83,255,1), rgba(77,83,255,0.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(0,182,255,1);
 	}
 
 	.circle-4 {
-		background: linear-gradient(94deg, rgba(4,167,0,1) 15%, rgba(20,130,0,1) 50%, rgba(2,112,0,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgba(4,167,0,1), rgba(4,167,0,0.8)) 15%, light-dark(rgba(20,130,0,1), rgba(20,130,0,0.8)) 50%, light-dark(rgba(2,112,0,1), rgba(2,112,0,0.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(20,130,0,1);
 	}
 
 	.circle-5 {
-		background: linear-gradient(94deg, rgba(122,0,64,1) 15%, rgba(178,16,16,1) 50%, rgba(194,0,0,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgba(122,0,64,1), rgba(122,0,64,0.8)) 15%, light-dark(rgba(178,16,16,1), rgba(178,16,16,0.8)) 50%, light-dark(rgba(194,0,0,1), rgba(194,0,0,0.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(178,16,16,1);
 	}
 
 	.circle-6 {
-		background: linear-gradient(94deg, rgb(133, 132, 107) 15%, rgb(189, 189, 139) 50%, rgba(130,130,9,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgb(133, 132, 107), rgba(133, 132, 107, 0.8)) 15%, light-dark(rgb(189, 189, 139), rgba(189, 189, 139, 0.8)) 50%, light-dark(rgba(130,130,9,1), rgba(130,130,9,0.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(255,255,188,1);
 	}
 
 	.circle-7 {
-		background: linear-gradient(94deg, rgba(136,5,132,1) 15%, rgba(216,48,164,1) 50%, rgba(169,82,165,1) 100%);
+		background: linear-gradient(94deg, light-dark(rgba(136,5,132,1), rgba(136,5,132,0.8)) 15%, light-dark(rgba(216,48,164,1), rgba(216,48,164,0.8)) 50%, light-dark(rgba(169,82,165,1), rgba(169,82,165,0.8)) 100%);
 		box-shadow: 0px 0px 10vw 2vw rgba(216,48,164,1);
 	}
 

@@ -2,10 +2,12 @@
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import Bar from '../bar.svelte';
-	import { authMethod } from '$lib/firebase/auth';
+	import { authMethod } from '$lib/firebase/auth/auth';
 	import { page } from '$app/stores';
 	
+	let { children } = $props();
 	let title:string = $state('');
+	
 	$effect( () => {
 		title = $page.params.slug ? $page.params.slug : "notes";
 	});
@@ -57,11 +59,11 @@
 <div class="content">
 	<form method="POST" action="?/login" use:enhance={submitLoginData}>
 		<div class="content-form">
-			<div class="content-typing" style="--length: {title.length == 0 ? Infinity : (title.length + 1)}; --width: {title.length + 1}ch">
+			<div class="content-typing" style="--length: {title ? title.length == 0 ? Infinity : (title.length + 1) : Infinity}; --width: {title ? title.length + 1 : Infinity}ch">
 				<div class="typing">{title}.</div>
 			</div>
 			<div class="content-input">
-				<slot />
+				{@render children()}
 			</div>
 		</div>
 	</form>
@@ -71,7 +73,7 @@
 	.content {
 		position: relative;
 		width: 100vw;
-		height: 90vh;
+		height: 90dvh;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -111,6 +113,8 @@
 	}
 
 	form {
+		zoom:120%;
+		overflow: hidden;
 		position: absolute;
 		padding: 3em;
 		width: fit-content;
@@ -119,7 +123,7 @@
 		backdrop-filter: blur(9px);
 		-webkit-backdrop-filter: blur(9px);
 		border-radius: 20px;
-		border: 1.5px solid white;
+		border: .15vw solid white;
 		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 		background-size: 400% 400%;
 		transition: padding .7s;
@@ -136,15 +140,16 @@
 		}
 	}
 
-	@media only screen and (max-height: 500px), only screen and (max-width: 450px) {
+	@media only screen and (max-height: 600px), only screen and (max-width: 450px) {
 		form {
+			zoom:normal;
 			position: absolute;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			transform: translateY(-5%);
 			width: 100%;
-			height: 100vh;
+			height: 100dvh;
 			overflow: hidden;
 			padding: 0;
 			border-top: 0;
@@ -157,16 +162,24 @@
 				position: relative;
 				width: fit-content;
 				height: fit-content;
-				top: 5vh;
+				top: 5dvh;
 
 				@media only screen and (max-height: 400px) {
 					display: flex;
 					gap: 40px;
-					justify-content: space-between;
+					justify-content: center;
 					.content-input {
 						padding-top: 0;
-						gap: 2.7vw;
+						gap: 5dvh;
 					}
+				}
+			}
+
+			@media only screen and (max-device-width: 950px) and (max-device-height: 430px) and (orientation:landscape){
+				transform: translateY(-15%);
+
+				.content-form{
+					top: 12dvh;
 				}
 			}
 		}

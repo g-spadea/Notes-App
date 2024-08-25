@@ -1,14 +1,21 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
+
+	type Note = {
+		id: string;
+		uid: string;
+		name: string;
+		text: string;
+		created: Date;
+		modified: Date;
+		// pointer: Pointer
+	}
+
 	namespace App {
-		// interface Error {}
 		interface Locals {
 			user?: string
 		}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
 	}
 }
 

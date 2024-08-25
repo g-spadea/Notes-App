@@ -2,7 +2,6 @@
     import logo from '$lib/assets/google-logo.svg';
 </script>
 
-
 <div class="buttons">
     <div class="login">
         <a href="/auth/signin" draggable="false">Sign In</a>
@@ -42,7 +41,6 @@
         a {
             text-decoration: none;
             font-size: 1.5em;
-            font-family: cursive;
             text-wrap: nowrap;
         }
     

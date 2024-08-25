@@ -18,9 +18,11 @@ if(browser){
 		// Impostiamo il cookie di nome token con il valore del token se c'è e con le opzioni che
 		// cookie sia valido in tutto il sito e abbia una durata indefinita (se esiste) o altrimenti
 		// che scada immediatamente.
-		document.cookie = cookie.serialize('token', token ?? '', {
+		document.cookie = cookie.serialize('__session', token ?? '', {
 			path: '/',
-			maxAge: token ? undefined : 0
+			maxAge: token ? undefined : 0,
+			// httpOnly: true,
+            secure: true
 		});
 	});
 

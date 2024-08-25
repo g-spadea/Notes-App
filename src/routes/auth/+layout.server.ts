@@ -3,5 +3,5 @@ import type { LayoutServerLoadEvent } from "./$types";
 
 export function load(event:LayoutServerLoadEvent) {
   if(event.locals.user)
-    redirect(303,'/app')
+    redirect(303,'/app/notes')
 }

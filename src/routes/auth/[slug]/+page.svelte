@@ -88,5 +88,20 @@
 		a {
 			font-size: 2vw;
 		}
+		
+		@media only screen and (max-device-width: 950px) and (max-device-height: 430px) and (orientation:landscape){
+			span#error {
+				font-size: 5dvh;
+			}
+
+			input {
+				width: 60dvh;
+				font-size: 5dvh;
+			}
+
+			a {
+				font-size: 5dvh;
+			}
+		}
 	}
 </style>

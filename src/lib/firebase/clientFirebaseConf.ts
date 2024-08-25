@@ -8,6 +8,7 @@ import {
   PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
   PUBLIC_FIREBASE_APP_ID,
 } from "$env/static/public";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: PUBLIC_FIREBASE_API_KEY,
@@ -18,13 +19,14 @@ const firebaseConfig = {
   appId: PUBLIC_FIREBASE_APP_ID,
 };
 
-function makeApp() {
+function appExist():[boolean, FirebaseApp] {
   const apps = getApps();
   if (apps.length > 0)
-    return apps[0]!;
+    return [true, apps[0]!];
   else
-    return initializeApp(firebaseConfig)
+    return [false, initializeApp(firebaseConfig)];
 }
 
-const firebaseApp:FirebaseApp = makeApp();
+const [cond, firebaseApp] = appExist();
 export const auth = getAuth(firebaseApp);
+export const db = cond ? getFirestore() : initializeFirestore(firebaseApp, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})});
