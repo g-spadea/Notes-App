@@ -1,12 +1,35 @@
 <script lang="ts">
-	import logo from '$lib/assets/white-logo.svg';
+	import { goto } from '$app/navigation';
+	import codeRepository from '$lib/assets/code.png';
 	import {authMethod} from "$lib/firebase/auth/auth";
 	import {themeStore} from "$lib/store/themeStore";
 	
-	let {logout = false} = $props();
+	let {logout = false, back = false, info=false, sync=false, update}:{
+		logout?: boolean,
+		back?: boolean,
+		info?: boolean,
+		sync?: boolean,
+		update?:() => Promise<void>
+	} = $props();
 	let dialog:HTMLDialogElement, lightDark:HTMLLabelElement;
 	let themeValue: boolean | null = $state($themeStore);
-		
+	let syncIcon: SVGElement| undefined = $state();
+    let syncCheck: boolean = false;
+
+	export function syncFunction(){
+		if(!syncIcon)
+			return;
+
+        if(!syncCheck){
+            syncIcon.classList.add('syncing');
+            syncCheck = true;
+            setTimeout(() => {
+                syncIcon!.classList.remove("syncing");
+                syncCheck=false;
+            }, 2800)
+        }
+    }
+	
 	$effect(() => {
 		const savedValue: string | null = window.localStorage.getItem("theme");
 		if(savedValue && $themeStore === null){
@@ -29,6 +52,7 @@
 
 </script>
 
+<div hidden class='syncing'></div>
 <dialog class="hidden-content" bind:this={dialog} onpointerdowncapture={(evt) => inDialog(dialog, evt)}>
 	<ul>
 		<li>
@@ -42,19 +66,39 @@
 </dialog>
 <div class="menu">
 	{#if logout}
-		<form class="logout" method="POST">
-			<button type="submit" onclick={() => authMethod('logout')} class="button-logout">
-				<svg class="icon-logout" viewBox="0 -960 960 960">
+		<form class="action" method="POST">
+			<button title="Logout" type="submit" onclick={() => authMethod('logout')} class="button-action">
+				<svg class="icon-action" viewBox="0 -960 960 960">
 					<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
 				</svg>
 			</button>
 		</form>
 	{/if}
-	<button onclick={() => dialog.showModal()} class="menu-control">
-		<img src={logo} id="logo" alt="" draggable="false"/>
-	</button>
+	{#if back}
+		<div class="action">
+			<button title="Return to the previous page" class="button-action" onclick={() => goto('/app/notes/')}>
+				<svg class="icon-action" viewBox="0 -960 960 960">
+					<path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/>
+				</svg>
+			</button>
+		</div>
+	{/if}
+	{#if sync}
+		<div class="action">
+			<button title="Sync current note with database" class="button-action" onclick={() => update!()}>
+				<svg bind:this={syncIcon} class="icon-action" viewBox="0 -960 960 960">
+					<path d="M160-160v-80h109q-51-44-80-106t-29-134q0-112 68-197.5T400-790v84q-70 25-115 86.5T240-480q0 54 21.5 99.5T320-302v-98h80v240H160Zm440 0q-50 0-85-35t-35-85q0-48 33-82.5t81-36.5q17-36 50.5-58.5T720-480q53 0 91.5 34.5T858-360q42 0 72 29t30 70q0 42-29 71.5T860-160H600Zm116-360q-7-41-27-76t-49-62v98h-80v-240h240v80H691q43 38 70.5 89T797-520h-81ZM600-240h260q8 0 14-6t6-14q0-8-6-14t-14-6h-70v-50q0-29-20.5-49.5T720-400q-29 0-49.5 20.5T650-330v10h-50q-17 0-28.5 11.5T560-280q0 17 11.5 28.5T600-240Zm120-80Z"/>
+				</svg>
+			</button>
+		</div>
+	{/if}
+	{#if info}
+		<button title="Project info" onclick={() => dialog.showModal()} class="menu-control">
+			<img src={codeRepository} id="logo" alt="Information icon for Github code project" draggable="false"/>
+		</button>
+	{/if}
 	<div class="light-dark">
-		<button class="switch" onkeypress={(evt) => evt.code==="Enter"? lightDark.click(): evt.stopPropagation()}>
+		<button title="Change theme color" class="switch" onkeypress={(evt) => evt.code==="Enter"? lightDark.click(): evt.stopPropagation()}>
 			<input id="theme-switch" type="checkbox" bind:checked={themeValue} />
 			<label bind:this={lightDark} id="switch-control" for="theme-switch">
 		</button>
@@ -63,12 +107,25 @@
 
 <style>
 
-	.logout{
+	.syncing{
+        animation: spin 1.4s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform:rotate(0deg);
+        }
+        to {
+            transform:rotate(360deg);
+        }
+    }
+	
+	.action{
 		width: 5.5dvh;
 		height: 5dvh;
 		transition: scale .4s, transform .4s;
 		
-		.button-logout{
+		.button-action{
 			position:absolute;
 			border: none;
 			background: transparent;
@@ -81,7 +138,7 @@
 			}
 		}
 		
-		.icon-logout{
+		.icon-action{
 			display: flex;
 			width: 5.5dvh;
 			height: 5dvh;
@@ -92,7 +149,7 @@
 			width: 4.5vw;
 			height: 4vw;
 
-			.icon-logout{
+			.icon-action{
 				width: 4.5vw;
 				height: 4vw;
 			}

@@ -69,7 +69,7 @@
 		<button bind:this={dateSort} formaction="?/dateSort" type="submit" onclick={() => sortMethod = dateSort}>Date</button>
         <button bind:this={nameSort} formaction="?/nameSort" type="submit" onclick={() => sortMethod = nameSort}>Name</button>
     </div>
-	<label bind:this={sort} class="sort-label" for="sort" draggable="false">
+	<label title="Sort method for notes" bind:this={sort} class="sort-label" for="sort" draggable="false">
 		<button type="button" class="button-sort" onkeypress={(evt) => press(evt, evt.currentTarget)}>
 			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
 				<path d="M120-240v-80h240v80H120Zm0-200v-80h480v80H120Zm0-200v-80h720v80H120Z"/>
@@ -77,9 +77,9 @@
 		</button>
 	</label>
     <input id="text" type="text" bind:value={text} autocomplete="off" placeholder="filter">
-    <label bind:this={filter} class="search-label" for="search" draggable="false">
+    <label title="Filter for notes" bind:this={filter} class="search-label" for="search" draggable="false">
 		<button type="button" class="button-filter" onkeypress={(evt) => press(evt, evt.currentTarget)}>
-        	<img src={filterImage} id="image" alt="" draggable="false">
+        	<img src={filterImage} id="image" alt="A filter to select specific note" draggable="false">
 		</button>
     </label>
 </div>
@@ -114,6 +114,7 @@
 			pointer-events: none;
 			background: transparent;
 			border: none;
+			user-select: none;
 		}
 
 		.sort-label{

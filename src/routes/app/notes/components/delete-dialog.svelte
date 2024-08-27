@@ -16,7 +16,7 @@
 	<form method="POST" name="delete" action="?/deleteNote" use:enhance={submit}>
 		<p id="dialog-text">Remove this note?</p>
 		<menu class="dialog-menu">
-			{#if submitError?.submitter === "remove"}
+			{#if submitError?.submitter === "delete"}
 				<span id="error">{submitError.text}</span>
 			{/if}
 			<button type="reset" onclick={() => dialog.close()}>Cancel</button>

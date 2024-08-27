@@ -1,16 +1,35 @@
 <script lang="ts">
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import Notes from './components/notes.svelte';
+	import Bar from "../../bar.svelte";
 	import { applyAction } from '$app/forms';
 	import { storageMethod } from '$lib/firebase/database/storage';
 	import { createStore } from '$lib/store/noteStore';
 	import type { Readable } from 'svelte/store';
+	import { browser } from '$app/environment';
 
 	let {data, form} = $props();
 
+
     let noteStore: Readable<Note[]> = $state(createStore(data.uid, data.notes));
-	
 	let timeout:boolean = false;
+	
+	function updateNote(){
+		const storageText = sessionStorage.getItem('text');
+		if(!storageText)
+			return;
+		const updatedNote = JSON.parse(storageText);
+		const oldNote = $noteStore.find((note) => note.id === updatedNote.id)
+		if(oldNote && oldNote.text === updatedNote.text){
+			sessionStorage.removeItem('text');
+			return;
+		}
+		storageMethod('update', {id: updatedNote.id, text: updatedNote.text})
+	}
+
+	if(browser){
+		updateNote()
+	}
 
 	$effect(() => {
 		if(form?.error && form?.error.submitter != "" && !timeout){
@@ -23,7 +42,7 @@
 		}
 	})
 
-	const storageAction: SubmitFunction = async ({action,formData, submitter}) => {
+	const storageAction: SubmitFunction = async ({action, formData, submitter}) => {
 		const actionNote:string = action.search;
 		const noteName = formData.get("noteName")?.toString();
 		const noteId = submitter?.getAttribute("name");
@@ -37,12 +56,18 @@
 				if(noteId)
 					formData.append("result", JSON.stringify(await storageMethod('delete', {id:noteId})));
 				break;
+			case '?/openNote':
+				const note = $noteStore.find((note) => note.id === noteId);
+				if(noteId && note)
+					formData.append('note', JSON.stringify(note));
+				break;
 			case '?/dateSort':
-				noteStore = createStore(data.uid, data.notes, 'date')
+				noteStore = createStore(data.uid, data.notes, 'modified')
 				break;
 			case '?/nameSort':
 				noteStore = createStore(data.uid, data.notes, 'name')
 				break;
+				
 		}
 
 		return async ({ result, update }) => {
@@ -69,4 +94,5 @@
 	}
 </script>
 
-<Notes notes={noteStore} submit={storageAction} submitError={form?.error}/>
+<Bar logout={true}/>
+<Notes notes={noteStore} submit={storageAction} submitError={form?.error} />

@@ -55,7 +55,7 @@
 	}
 </script>
 
-<Bar />
+<Bar info={true}/>
 <div class="content">
 	<form method="POST" action="?/login" use:enhance={submitLoginData}>
 		<div class="content-form">

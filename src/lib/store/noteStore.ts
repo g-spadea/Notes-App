@@ -1,5 +1,5 @@
 import { db } from "$lib/firebase/clientFirebaseConf";
-import { collection, onSnapshot, orderBy, query, where, type DocumentData, type QuerySnapshot, type Timestamp } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, Timestamp, where, type DocumentData, type QuerySnapshot } from "firebase/firestore";
 import { readable } from "svelte/store";
 
 function snapToNotes(q: QuerySnapshot<DocumentData,DocumentData>){
@@ -19,23 +19,12 @@ function snapToNotes(q: QuerySnapshot<DocumentData,DocumentData>){
     }) as Note[];
 }
 
-function orderMethod(s:string|undefined){
-    switch(s){
-        case 'date': 
-            return 'modified';
-        case 'name':
-            return'name';
-        default:
-            return 'modified'
-    }
-}
-
-export function createStore(uid: string, notes: Note[], order?:'date'|'name'){
+export function createStore(uid: string, notes: Note[], order?:'modified'|'name'){
     return readable<Note[]>(
         [], (set) => {
             set(notes);
 
-            const method = orderMethod(order)
+            const method = order ? order : 'modified';
 
             return onSnapshot(
                 query(

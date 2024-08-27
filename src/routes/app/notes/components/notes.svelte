@@ -12,6 +12,10 @@
         submitError: {submitter: string; text: string;} | undefined
     } = $props();
     
+    function formatDate(date: Date){
+        return date.toString().slice(0, date.toString().indexOf("G"));
+    }
+
     export function inDialog(dialog: HTMLDialogElement, event: PointerEvent){
 		var rect = dialog.getBoundingClientRect();
 		var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
@@ -29,11 +33,11 @@
 {#snippet noteSnippet(id:string, name:string, date:Date)}
     <div id={name} class="note">
         <!-- TODO: Open text editor -->
-        <button type="submit">
+        <button formaction="?/openNote" name={id} type="submit">
             <span title={name}>{name}</span>
-            <span title={date.toUTCString()}>{date.toUTCString()}</span>
+            <span title={formatDate(date)}>{formatDate(date)}</span>
         </button>
-        <button type="button" class="delete" onclick={() => {
+        <button title="Delete note" type="button" class="delete" onclick={() => {
                 prop={noteId:id}
                 deleteDialog.showModal(); 
             }}>
@@ -50,9 +54,12 @@
 <div class="content-notes">
     <form id="notes-form" class="notes-form" method="POST" use:enhance={submit}>
         <ActionBar/>
+        {#if submitError?.submitter === "note"}
+            <span id="error">{submitError.text}</span>
+        {/if}
         <div class="notes">
             <div class="note">
-                <button type='button' class="new-note-button" onclick={() => addDialog.showModal()}>
+                <button title="Add notes" type='button' class="new-note-button" onclick={() => addDialog.showModal()}>
                     <span>
                         +
                     </span>
@@ -95,6 +102,14 @@
         background-size: 400% 400%;
         transition: ease all 0.4s;
     }
+    
+    span#error {
+        color: rgb(127, 0, 0);
+        font-size: 1.4em;
+        margin-top: 3%;
+        text-wrap: nowrap;
+        text-align: center;
+    }
 
     .notes {
         position:relative;
@@ -106,6 +121,7 @@
         gap: .3em;
         height: 80%;
         transition: ease all 0.4s;
+
 
         &::-webkit-scrollbar {
             width: .2em;
@@ -151,6 +167,7 @@
                     height: 100%;
                     background: light-dark(rgba(255, 255, 255, 0.707) ,rgba(0, 0, 0, 0.309));
                     border-radius: 1em;
+                    user-select: none;
                     
                     border: none;
                     
@@ -172,6 +189,7 @@
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
+                text-rendering: geometricPrecision;
                 
                 span{
                     width: 45%;
@@ -237,6 +255,10 @@
             box-shadow: none;
             transition: ease padding .4s;
         }
+
+        span#error {
+            font-size: 2.5vw;
+		}
 
         .notes {
             margin-top: 0;

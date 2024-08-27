@@ -22,7 +22,7 @@ if(browser){
 			path: '/',
 			maxAge: token ? undefined : 0,
 			// httpOnly: true,
-            secure: true
+            // secure: true
 		});
 	});
 

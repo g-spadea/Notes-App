@@ -7,8 +7,8 @@
         <a href="/auth/signin" draggable="false">Sign In</a>
     </div>
     <div class="google">
-        <button type="submit" name="google" class="google-button">
-            <img src={logo} id="google-logo" alt="" draggable="false">
+        <button title="Login with google" type="submit" name="google" class="google-button">
+            <img src={logo} id="google-logo" alt="Google logo for sign in with google account" draggable="false">
         </button>
     </div>
     <div class="signup">
