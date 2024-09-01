@@ -1,13 +1,14 @@
 <script lang="ts">
     import filterImage from "$lib/assets/filter.svg"
 
+	let {sortMethod=$bindable()}:{sortMethod: HTMLButtonElement| undefined} = $props();
+
 	let sort: HTMLLabelElement, filter: HTMLLabelElement;
     let text: string = $state('');
     let notes: NodeListOf<HTMLElement> = $state()!;
 	let searchCheck: boolean | undefined = $state();
 	let dateSort: HTMLButtonElement;
 	let nameSort: HTMLButtonElement;
-	let sortMethod: HTMLButtonElement|undefined = $state();
 	let observer: MutationObserver;
 
 	function press(evt: KeyboardEvent, target: HTMLButtonElement){
@@ -28,6 +29,21 @@
 				notes[note].style.display='none';
 		}
 	}
+
+	function changeSortMethod(method:HTMLButtonElement){
+		switch(method){
+			case dateSort:
+				localStorage.setItem('sort', 'Date');
+				break;
+			case nameSort:
+				localStorage.setItem('sort', 'Name')
+				break;
+			default:
+				return;
+		}
+		
+		sortMethod = method;
+	}
 	
 	$effect(() => {
 		
@@ -43,7 +59,21 @@
 			});
 		}
 
-		if(!sortMethod) sortMethod = dateSort;
+		if(!sortMethod){
+			const item = localStorage.getItem('sort');
+			switch(item){
+				case 'Date':
+					sortMethod = dateSort;
+					break;
+				case 'Name':
+					sortMethod = nameSort;
+					break;
+				default:
+					sortMethod = dateSort;
+					localStorage.setItem('sort', 'Date')
+			}
+		}
+			
 		if(!notes) notes = document.querySelectorAll('.note');
 		if(!searchCheck) text = '';
 
@@ -66,11 +96,11 @@
     <input id="search" type="checkbox" bind:checked={searchCheck}>
     <!-- TODO: BACKDROP LIST SORT --> 
     <div class="sort-method">
-		<button bind:this={dateSort} formaction="?/dateSort" type="submit" onclick={() => sortMethod = dateSort}>Date</button>
-        <button bind:this={nameSort} formaction="?/nameSort" type="submit" onclick={() => sortMethod = nameSort}>Name</button>
+		<button bind:this={dateSort} type="button" onclick={() => changeSortMethod(dateSort)}>Date</button>
+        <button bind:this={nameSort} type="button" onclick={() => changeSortMethod(nameSort)}>Name</button>
     </div>
 	<label title="Sort method for notes" bind:this={sort} class="sort-label" for="sort" draggable="false">
-		<button type="button" class="button-sort" onkeypress={(evt) => press(evt, evt.currentTarget)}>
+		<button type="button" class="button-sort" aria-label="sort" onkeypress={(evt) => press(evt, evt.currentTarget)}>
 			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
 				<path d="M120-240v-80h240v80H120Zm0-200v-80h480v80H120Zm0-200v-80h720v80H120Z"/>
 			</svg>

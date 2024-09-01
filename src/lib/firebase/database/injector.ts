@@ -7,21 +7,6 @@ interface FirestoreMethod {
 
 class AddNote implements FirestoreMethod{
     async method({uid, name}: {uid: string, name: string}): Promise<void> {
-
-        if(name === '')
-            throw new Error("Insert name");
-
-        const result = await getDocs(
-            query(
-                collection(db, 'notes'),
-                where('uid', '==', uid),
-                where('name', '==', name)
-            )
-        )
-
-        if(!result.empty)
-            throw new Error("Name already exist");
-
         return setDoc(
             doc(collection(db,'notes')), {
                 uid,

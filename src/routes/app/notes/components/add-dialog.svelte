@@ -11,7 +11,7 @@
 </script>
 
 <dialog bind:this={dialog} class="add-dialog" onpointerdown={(evt) => inDialog(dialog,evt)}>
-	<form method="POST" name="add" use:enhance={submit} action="?/addNote">
+	<form method="POST" name="add" action="?/addNote" onsubmit={() => dialog.close()} use:enhance={submit} >
 		<p id="dialog-text">New Note</p>
 		<menu class="dialog-menu">
 			{#if submitError?.submitter === "add"}

@@ -29,4 +29,4 @@ function appExist():[boolean, FirebaseApp] {
 
 const [cond, firebaseApp] = appExist();
 export const auth = getAuth(firebaseApp);
-export const db = cond ? getFirestore() : initializeFirestore(firebaseApp, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})});
+export const db = cond ? getFirestore() : initializeFirestore(firebaseApp, {localCache: persistentLocalCache({})});

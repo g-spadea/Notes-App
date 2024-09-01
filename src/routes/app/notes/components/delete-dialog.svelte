@@ -13,7 +13,7 @@
 </script>
 
 <dialog bind:this={dialog} class="delete-dialog" onpointerdown={(evt) => inDialog(dialog,evt)}>
-	<form method="POST" name="delete" action="?/deleteNote" use:enhance={submit}>
+	<form method="POST" name="delete" action="?/deleteNote" onsubmit={() => dialog.close()} use:enhance={submit}>
 		<p id="dialog-text">Remove this note?</p>
 		<menu class="dialog-menu">
 			{#if submitError?.submitter === "delete"}

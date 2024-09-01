@@ -1,6 +1,57 @@
 <script lang="ts">
 	import { userStore } from "$lib/store/userStore";
+	
 	let { children } = $props();
+	let interval: NodeJS.Timeout;
+	let networkStatus: boolean|undefined = $state();
+
+	function showNotification(status: boolean) {
+		Notification.requestPermission().then((result) => {
+			if(result === 'granted') {
+				navigator.serviceWorker.ready.then((notify) => {
+					notify.showNotification(status ? 'Notes is online' : 'Notes is offline', {
+						icon: "/pwa-192x192.png",
+					});
+				})
+			}
+		})
+	}
+
+	async function checkNetwork() {
+		return fetch(window.origin, {
+			method: 'HEAD',
+		}).then(response => {
+			if(response.ok)
+				return true;
+			throw new Error('Network error');
+		}).catch(() => {
+			return false;
+		})
+	}
+	
+	$effect(() => {
+		const savedState = sessionStorage.getItem('networkStatus');
+
+		if(networkStatus === undefined){
+			if(savedState === null){
+				sessionStorage.setItem('networkStatus', 'true');
+			}
+			interval = setInterval(() => {
+				checkNetwork().then(status => {
+					networkStatus = status;
+				})
+			}, 2000);
+			window.addEventListener("beforeunload", () => {
+				if (interval) clearInterval(interval)
+			})
+			return;
+		}
+
+		if(savedState === null || networkStatus != (savedState === 'true' ? true : false)){
+			showNotification(networkStatus);
+			sessionStorage.setItem('networkStatus', networkStatus ? 'true' : 'false');
+		}
+	})
 </script>
 
 {#snippet circle(name: string, pos:[number, number], dim:number)}

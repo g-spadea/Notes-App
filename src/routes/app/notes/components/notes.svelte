@@ -2,18 +2,28 @@
 	import ActionBar from "./action-bar.svelte";
     import DeleteDialog from "./delete-dialog.svelte";
 	import AddDialog from "./add-dialog.svelte";
-	import type { SubmitFunction } from "@sveltejs/kit";
-	import { enhance } from "$app/forms";
+	import { type SubmitFunction } from "@sveltejs/kit";
 	import type { Readable } from "svelte/store";
+    
+    
+    let deleteDialog: HTMLDialogElement = $state()!;
+    let addDialog: HTMLDialogElement = $state()!;
 
-    let {notes, submit, submitError}: {
-        notes: Readable<Note[] | null>, 
+    let {prop=$bindable(), sortMethod=$bindable(), notes, submit, submitError}: {
+        prop: {noteId:string, noteText?:string}| undefined,
+        sortMethod:HTMLButtonElement | undefined;
+        notes: Readable<Note[] | null>|undefined, 
         submit: SubmitFunction, 
         submitError: {submitter: string; text: string;} | undefined
     } = $props();
     
     function formatDate(date: Date){
         return date.toString().slice(0, date.toString().indexOf("G"));
+    }
+
+    function openNote(id:string,text:string){
+        sessionStorage.setItem('text', JSON.stringify({id,text}));
+        return {noteId:id,text, noteText:text};
     }
 
     export function inDialog(dialog: HTMLDialogElement, event: PointerEvent){
@@ -24,19 +34,16 @@
 			dialog.close();
 	}
 
-    let deleteDialog: HTMLDialogElement = $state()!;
-    let addDialog: HTMLDialogElement = $state()!;
-    let prop:{noteId:string}| undefined = $state()
-
 </script>
 
-{#snippet noteSnippet(id:string, name:string, date:Date)}
+{#snippet noteSnippet(id:string, name:string, text: string, date:Date)}
     <div id={name} class="note">
-        <!-- TODO: Open text editor -->
-        <button formaction="?/openNote" name={id} type="submit">
+        <a href='/app/editor' id="note-button" data-sveltekit-preload-code='eager' onclick={() => {
+            prop = openNote(id,text);
+        }}>
             <span title={name}>{name}</span>
             <span title={formatDate(date)}>{formatDate(date)}</span>
-        </button>
+        </a>
         <button title="Delete note" type="button" class="delete" onclick={() => {
                 prop={noteId:id}
                 deleteDialog.showModal(); 
@@ -51,9 +58,9 @@
 
 <DeleteDialog bind:dialog={deleteDialog} inDialog={inDialog} {submitError} {submit} {prop}/>
 <AddDialog bind:dialog={addDialog} inDialog={inDialog} {submitError} {submit}/>
-<div class="content-notes">
-    <form id="notes-form" class="notes-form" method="POST" use:enhance={submit}>
-        <ActionBar/>
+<div class="content-notes" >
+    <form id="notes-form" class="notes-form" method="GET">
+        <ActionBar bind:sortMethod={sortMethod}/>
         {#if submitError?.submitter === "note"}
             <span id="error">{submitError.text}</span>
         {/if}
@@ -66,7 +73,7 @@
                 </button>
             </div>
             {#each $notes ? $notes : [] as note}
-                {@render noteSnippet(note.id, note.name, note.modified)}
+                {@render noteSnippet(note.id, note.name, note.text, note.modified)}
             {/each}
         </div>
     </form>
@@ -82,6 +89,7 @@
         justify-content: center;
         align-items: center;
         bottom: 0px;
+        transform: translateY(0%);
     }
 
     .notes-form {
@@ -180,7 +188,7 @@
             }
 
 
-            button[type="submit"] {
+            a#note-button {
                 cursor: pointer;
                 background: transparent;
                 padding: 1.3em;
@@ -190,17 +198,21 @@
                 justify-content: flex-start;
                 align-items: center;
                 text-rendering: geometricPrecision;
+                color: light-dark(rgb(29, 29, 29), white);
                 
                 span{
                     width: 45%;
                     font-family: 'Courier New', Courier, monospace;
-                    color: light-dark('', white);
                     font-size: .8rem;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                     overflow: hidden;
+                    text-align: center;                    
                 }
-
+                
+                &:link{
+                    text-decoration: none;
+                }
             }
             
             .delete {
@@ -241,6 +253,7 @@
     @media only screen and (max-height: 640px), only screen and (max-width: 695px) {
 
         .notes-form {
+            position: absolute;
             zoom: normal;
             display: flex;
             justify-content: center;
@@ -296,7 +309,7 @@
                     }
                 }
 
-                button[type="submit"] {
+                a#note-button {
                     
                     flex-direction: column;
                     gap: 1em;

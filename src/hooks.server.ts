@@ -5,6 +5,9 @@ import debug from "debug";
 const log = debug("app:hooks.server");
 
 export const handle: Handle = async ({ event, resolve }) => {
+    if(event.request.method === 'HEAD')
+        return await resolve(event);
+    
     try{
         const token = event.cookies.get("__session");
         const currentUser = token ? await auth.verifyIdToken(token) : null;

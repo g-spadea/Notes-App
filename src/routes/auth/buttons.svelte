@@ -4,7 +4,7 @@
 
 <div class="buttons">
     <div class="login">
-        <a href="/auth/signin" draggable="false">Sign In</a>
+        <a href="/auth/signin" draggable="false" data-sveltekit-reload>Sign In</a>
     </div>
     <div class="google">
         <button title="Login with google" type="submit" name="google" class="google-button">
@@ -12,7 +12,7 @@
         </button>
     </div>
     <div class="signup">
-        <a href="/auth/signup" draggable="false">Sign Up</a>
+        <a href="/auth/signup" draggable="false" data-sveltekit-reload>Sign Up</a>
     </div>
 </div>
 

@@ -9,7 +9,7 @@
 {#if data.slug == 'signin'}
 	<input type="password" name= "password" placeholder= "Password" autocomplete="on" required/>
 	<input type="submit" name={data.slug} id="submit-button" />
-	<a href="forgotpassword">Forgot Password?</a>
+	<a href="forgotpassword" data-sveltekit-reload>Forgot Password?</a>
 {:else if data.slug == 'signup'}
 	<input type="password" name= "password" placeholder= "Password" autocomplete="on" required/>
 	<input 

@@ -4,9 +4,15 @@
 	import Bar from '../bar.svelte';
 	import { authMethod } from '$lib/firebase/auth/auth';
 	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 	
 	let { children } = $props();
 	let title:string = $state('');
+
+	if(browser){
+		sessionStorage.setItem('inNote', 'false');
+	}
 	
 	$effect( () => {
 		title = $page.params.slug ? $page.params.slug : "notes";
@@ -14,8 +20,13 @@
 
 	// Use:enhance ci permette di aggiungere logica lato client alla form in maniera tale
 	// da poter chiamare i metodi Firebase e gestirli server-side
-    const submitLoginData: SubmitFunction = async ({formData, action, submitter}) => {
+    const submitLoginData: SubmitFunction = async ({formData, action, submitter, cancel}) => {
 		title = "waiting..";
+		let networkStatus = sessionStorage.getItem('networkStatus');
+		if(networkStatus === 'false'){
+			cancel();
+			goto('/fallbackPost')
+		}
 		const name = submitter?.getAttribute("name");
 		const email = formData.get("email")?.toString();
 		const password = formData.get("password")?.toString();

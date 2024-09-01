@@ -1,20 +1,25 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import codeRepository from '$lib/assets/code.png';
 	import {authMethod} from "$lib/firebase/auth/auth";
 	import {themeStore} from "$lib/store/themeStore";
+	import type { ActionResult, SubmitFunction } from '@sveltejs/kit';
 	
 	let {logout = false, back = false, info=false, sync=false, update}:{
 		logout?: boolean,
 		back?: boolean,
 		info?: boolean,
 		sync?: boolean,
-		update?:() => Promise<void>
+		update?:() => Promise<void>,
 	} = $props();
-	let dialog:HTMLDialogElement, lightDark:HTMLLabelElement;
+	let dialog:HTMLDialogElement = $state()!;
+	let lightDark:HTMLLabelElement;
 	let themeValue: boolean | null = $state($themeStore);
 	let syncIcon: SVGElement| undefined = $state();
     let syncCheck: boolean = false;
+	let resultStore:ActionResult|undefined = $state();
+	let logoutButton: HTMLButtonElement|undefined = $state();
+	let interval:NodeJS.Timeout;
 
 	export function syncFunction(){
 		if(!syncIcon)
@@ -29,8 +34,27 @@
             }, 2800)
         }
     }
+
+	function iconOpacity(action: boolean){
+		if(!logoutButton)
+			return;
+ 
+		if(action){
+			logoutButton.style.opacity='1';
+			logoutButton.style.pointerEvents='initial';
+		}
+		else{
+			logoutButton.style.opacity='.3';
+			logoutButton.style.pointerEvents='none';
+		}
+	}
 	
 	$effect(() => {
+		if(logoutButton && !interval)
+			interval = setInterval(() => iconOpacity(sessionStorage.getItem('networkStatus') === 'true' ? true : false), 2000)
+		else if(!logoutButton && interval)
+			clearInterval(interval);
+		
 		const savedValue: string | null = window.localStorage.getItem("theme");
 		if(savedValue && $themeStore === null){
 			themeValue = savedValue === "true" ? true : false;
@@ -50,38 +74,57 @@
 			dialog.close();
 	}
 
+	const logoutAction: SubmitFunction = async ({submitter, formData}) => {
+		const name = submitter?.getAttribute("name");
+
+		if(name && name === 'logout')
+			formData.append("result", JSON.stringify(await authMethod('logout')));
+
+		
+		return async ({ result, update }) => {
+			if(result.type==='success')
+				await update();
+			else
+				resultStore = result;
+		}
+	}
+
 </script>
 
 <div hidden class='syncing'></div>
+{#if info}
 <dialog class="hidden-content" bind:this={dialog} onpointerdowncapture={(evt) => inDialog(dialog, evt)}>
 	<ul>
 		<li>
 			<a href="https://github.com/g-spadea/SAW" draggable="false">Github Repository</a>
 		</li>
-		<li>
-			<a href="https://github.com/g-spadea" draggable="false">About</a>
-		</li>
 	</ul>
-	<!-- TODO: Version-->
 </dialog>
+{/if}
 <div class="menu">
 	{#if logout}
-		<form class="action" method="POST">
-			<button title="Logout" type="submit" onclick={() => authMethod('logout')} class="button-action">
-				<svg class="icon-action" viewBox="0 -960 960 960">
-					<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
-				</svg>
+		<form class="action" action='?/logout' method="post" use:enhance={logoutAction}>
+			<button bind:this={logoutButton} title="Logout" name='logout' class="button-logout">
+				{#if resultStore?.type === 'failure'}
+					<svg class="icon-action" viewBox="0 -960 960 960" fill='#b04145'>
+						<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+					</svg>
+				{:else}
+					<svg class="icon-action" viewBox="0 -960 960 960">
+						<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+					</svg>
+				{/if}
 			</button>
 		</form>
 	{/if}
 	{#if back}
-		<div class="action">
-			<button title="Return to the previous page" class="button-action" onclick={() => goto('/app/notes/')}>
+		<form class="action" method="get">
+			<a href='/app/notes' title="Return to notes" class="button-action" data-sveltekit-reload>
 				<svg class="icon-action" viewBox="0 -960 960 960">
 					<path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/>
 				</svg>
-			</button>
-		</div>
+			</a>
+		</form>
 	{/if}
 	{#if sync}
 		<div class="action">
@@ -125,17 +168,22 @@
 		height: 5dvh;
 		transition: scale .4s, transform .4s;
 		
-		.button-action{
+		.button-action, .button-logout{
 			position:absolute;
 			border: none;
 			background: transparent;
 			cursor:pointer;
 			scale: 1;
-			transition: scale .4s;
+			transition: scale .4s, opacity .4s;
 			
 			&:hover{
 				scale: 1.2;
 			}
+		}
+
+		.button-logout{
+			opacity: .3;
+			pointer-events: none;
 		}
 		
 		.icon-action{
