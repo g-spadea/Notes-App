@@ -30,8 +30,12 @@
     ```bash
     npm install
     ```
+3. **Set up Firebase**:
+    - Create a Firebase project.
+    - Enable Firestore and Authentication.
+    - Add your Firebase and Firebase Admin configuration to the project in a .env file at root of the project. (Refer to the example)
 
-3. **Run the application**:
+4. **Run the application**:
     ```bash
     npm run dev
     
