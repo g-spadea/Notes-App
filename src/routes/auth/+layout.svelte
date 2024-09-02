@@ -1,50 +1,55 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, deserialize, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import Bar from '../bar.svelte';
+	import Bar from '../components/bar.svelte';
 	import { authMethod } from '$lib/firebase/auth/auth';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	
 	let { children } = $props();
+	
 	let title:string = $state('');
 
-	if(browser){
+	if(browser)
 		sessionStorage.setItem('inNote', 'false');
-	}
 	
 	$effect( () => {
 		title = $page.params.slug ? $page.params.slug : "notes";
 	});
 
-	// Use:enhance ci permette di aggiungere logica lato client alla form in maniera tale
-	// da poter chiamare i metodi Firebase e gestirli server-side
     const submitLoginData: SubmitFunction = async ({formData, action, submitter, cancel}) => {
+		
 		title = "waiting..";
+		
 		let networkStatus = sessionStorage.getItem('networkStatus');
-		if(networkStatus === 'false'){
-			cancel();
-			goto('/fallbackPost')
-		}
+		if(networkStatus === 'false')
+			goto('/fallbackPost');
+
 		const name = submitter?.getAttribute("name");
 		const email = formData.get("email")?.toString();
 		const password = formData.get("password")?.toString();
+
 		switch(name){
+
 			case 'google':
 				formData.append("result", JSON.stringify(await authMethod(name)));
 				break;
+
 			case 'signin':
 				formData.append("result", JSON.stringify(await authMethod(name, email, password)));
 				break;
+
 			case 'signup':
-				// Inviamo prima i dati per la verifica della password server-side
-				await fetch(action, {
+				const result = await fetch(action, {
 					method: 'POST',
 					body: formData
 				});
-				formData.append("result", JSON.stringify(await authMethod(name, email, password)));
+				
+				if(deserialize(await result.text()).type === 'success')
+					formData.append("result", JSON.stringify(await authMethod(name, email, password)));
 				break;
+	
 			case 'forgotpassword':
 				formData.append("result", JSON.stringify(await authMethod(name, email)));
 				break;
@@ -54,12 +59,8 @@
 
 			title = $page.params.slug;
 
-			// Ripristina parte del comportamento di default (tranne InvalidateAll)
-			// Questo mi permette di aggiornare la proprietà form
 			await applyAction(result);
 			
-			// Ripristiniamo interamente comportamento di default
-			// Questo mi permette di ricaricare la load del layout server
 			if(result.type === 'success')
 				await update()
 		}

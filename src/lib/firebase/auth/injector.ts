@@ -39,7 +39,7 @@ class LogOut implements AuthMethod{
     }
 }
 
-//Singleton
+//Singleton with eager initialization
 export class Injector {
 
     private constructor() {}

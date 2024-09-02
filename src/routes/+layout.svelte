@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { browser, version } from "$app/environment";
 	import { userStore } from "$lib/store/userStore";
 	
 	let { children } = $props();
-	let interval: NodeJS.Timeout;
+
 	let networkStatus: boolean|undefined = $state();
+	let interval: NodeJS.Timeout;
 
 	function showNotification(status: boolean) {
 		Notification.requestPermission().then((result) => {
@@ -17,6 +19,17 @@
 		})
 	}
 
+	async function cacheIsFull(){
+		if(!caches.has(`cache-${version}`))
+			return;
+
+		const cache = await caches.open(`cache-${version}`);
+		if((await cache.keys()).some((request) => request.url.includes('x-sveltekit-invalidated')))
+			sessionStorage.setItem('cached', 'true');
+		else 
+			sessionStorage.setItem('cached', 'false');
+	}
+
 	async function checkNetwork() {
 		return fetch(window.origin, {
 			method: 'HEAD',
@@ -28,23 +41,49 @@
 			return false;
 		})
 	}
+
+	async function updateFound(){
+		const registration = await navigator.serviceWorker.ready;
+
+		registration.addEventListener('updatefound', () => {
+			const newSW = registration.installing;
+			newSW?.addEventListener('statechange', () => {
+				if(newSW.state === 'installed')
+					if(confirm('New update! Reload page?')){
+						newSW.postMessage({type:'SKIP_WAITING'})
+						window.location.reload();
+					}
+			})
+		})
+	}
+
+	if(browser)
+		updateFound();
 	
 	$effect(() => {
+
 		const savedState = sessionStorage.getItem('networkStatus');
 
 		if(networkStatus === undefined){
-			if(savedState === null){
+
+			if(savedState === null)
 				sessionStorage.setItem('networkStatus', 'true');
-			}
+			else 
+				networkStatus = savedState === 'true' ? true : false;
+			
 			interval = setInterval(() => {
 				checkNetwork().then(status => {
 					networkStatus = status;
 				})
+				cacheIsFull();
 			}, 2000);
+			
 			window.addEventListener("beforeunload", () => {
 				if (interval) clearInterval(interval)
 			})
+			
 			return;
+
 		}
 
 		if(savedState === null || networkStatus != (savedState === 'true' ? true : false)){
@@ -52,6 +91,7 @@
 			sessionStorage.setItem('networkStatus', networkStatus ? 'true' : 'false');
 		}
 	})
+
 </script>
 
 {#snippet circle(name: string, pos:[number, number], dim:number)}
@@ -75,6 +115,7 @@
 	{@render circle('circle-6', [-600,-400], 5)}
 	{@render circle('circle-7', [700,400], 2)}
 </div>
+
 {@render children()}
 
 <style>
@@ -137,11 +178,7 @@
 	:root {
 		color-scheme: light;
 		--primary-color: light-dark(#333, #ffffff);
-		--primary-background: light-dark(#cbcbcb, #373737);
-		--navigator-color: light-dark(#716853, #817862);
-		--form-color: light-dark(rgba(255, 255, 255, 0.208), rgba(61, 61, 61, 0.753));
 		--content-shadow-color: light-dark(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.03));
-		--background-shadow: light-dark(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6));
 		--primary-color-reverse: light-dark(#efefec, #333);
 		--google-background: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.1));
 		--signin-backgound: light-dark(rgba(0, 0, 0, 0.50),rgba(255, 255, 255, 0.85));

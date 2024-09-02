@@ -1,8 +1,15 @@
 <script lang="ts">
-	import Button from './buttons.svelte'
+	import Button from './components/buttons.svelte'
+	import { timeoutError } from './components/shared';
 
 	let {form} = $props();
 
+	let timeout:boolean = false;
+
+	$effect(() => {
+		timeoutError(form,timeout);
+	})
+	
 </script>
 
 {#if form?.error}

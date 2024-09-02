@@ -13,6 +13,11 @@ const ASSETS = [
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
+self.addEventListener('message', (evt) => {
+	if(evt.data && evt.data.type === 'SKIP_WAITING')
+		sw.skipWaiting();
+})
+
 self.addEventListener('install', (event) => {
 	async function addFilesToCache() {
 		const cache = await caches.open(CACHE);

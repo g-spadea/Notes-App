@@ -9,7 +9,6 @@ declare global {
 		text: string;
 		created: Date;
 		modified: Date;
-		// pointer: Pointer
 	}
 
 	namespace App {

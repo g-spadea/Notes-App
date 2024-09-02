@@ -1,4 +1,4 @@
-import { collection, deleteDoc, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where} from "firebase/firestore";
+import { collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc} from "firebase/firestore";
 import { db } from "../clientFirebaseConf";
 
 interface FirestoreMethod {
@@ -31,7 +31,7 @@ class DeleteNote implements FirestoreMethod{
     }
 }
 
-//Singleton
+//Singleton with eager initialization
 export class Injector {
 
     private constructor() {}
