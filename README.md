@@ -18,7 +18,7 @@
 - **Svelte 5** 🌟: Utilized for its latest features and improvements.
 - **Firebase** 🔥: Authentication and Firestore for backend services.
 
-### Getting Started
+## Getting Started
 
 1. **Clone the repository**:
     ```bash
